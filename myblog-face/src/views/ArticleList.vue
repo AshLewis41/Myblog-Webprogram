@@ -1,25 +1,19 @@
 <script setup>
-// ============ Week09 列表页:脸的第一间房 ============
-// 链路纪律在组件层的落点:本组件只管【第③步渲染】,
-// 第①步 fetch 和第②步拆包都住在 ../api.js —— 页面不自己发请求、不自己猜数据
 import { ref, onMounted } from 'vue'
-import { fetchArticles } from '../api.js'
+import { getData } from '../http.js'   // ← 用你自己的桥梁
 
-// ---------- 页面的记忆 ----------
-const articles = ref([])     // 真话容器:等 fetch 回来填 PageResult.items
-const error = ref('')        // 诚实表情之一:失败时说失败
-const loading = ref(true)    // 诚实表情之二:加载中说加载中(Level 3 的 Loading 态)
-                             // —— 初始为 true,拿到结果(无论成败)后翻回 false
+const articles = ref([])
+const error = ref('')
+const loading = ref(true)        // ← 唯一新增的零件:登记 loading
 
-// ---------- 组件挂载 → 发请求 → 拆好的真身 → 填进记忆 ----------
 onMounted(async () => {
   try {
-    const data = await fetchArticles()   // ← 拿到的已是真身 PageResult{items,total}
-    articles.value = data.items          // ← 只取 items 画到脸上
+    const data = await getData('/articles', { params: { page: 1, size: 10 } })
+    articles.value = data.items        // ← 你原来的拆包逻辑,原样保留
   } catch (e) {
-    error.value = e.message              // 失败也要诚实:把错误亮出来,不装没事
+    error.value = e.message
   } finally {
-    loading.value = false                // 无论成败,加载阶段结束
+    loading.value = false             // ← 成功/失败都关掉"加载中"
   }
 })
 </script>

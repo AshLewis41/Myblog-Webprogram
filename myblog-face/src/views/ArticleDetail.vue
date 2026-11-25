@@ -1,15 +1,16 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { fetchArticle } from '../api.js'
+import { getData } from '../http.js'
 
-const route = useRoute()              // 从 URL 里拿 :id
+const route = useRoute()
 const article = ref(null)
 const error = ref('')
 
 onMounted(async () => {
   try {
-    article.value = await fetchArticle(route.params.id)
+    const data = await getData(`/articles/${route.params.id}`)
+    article.value = data                  // ← 拆包后直接是文章对象
   } catch (e) {
     error.value = e.message
   }
